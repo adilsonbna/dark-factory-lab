@@ -1,0 +1,15 @@
+.DS_Store
+.env
+.env.*
+!.env.example
+.discovery/
+*.pem
+*.key
+.venv/
+node_modules/
+dist/
+target/
+__pycache__/
+.pytest_cache/
+otel-data/
+clickhouse-data/

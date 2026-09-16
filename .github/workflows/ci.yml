@@ -1,0 +1,12 @@
+name: ci
+on:
+  pull_request:
+  push:
+    branches: [main]
+jobs:
+  guardrails:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Required planning files exist
+        run: test -f intent.md && test -f requirements.md && test -f evaluation-plan.md
