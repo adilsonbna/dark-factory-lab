@@ -1,0 +1,28 @@
+{
+  "scenarios": [
+    { "id": "SC-01-V1", "category": "Application exception", "fault_type": "python_exception", "target": "checkout" },
+    { "id": "SC-01-V2", "category": "Application exception", "fault_type": "python_exception", "target": "inventory" },
+    { "id": "SC-01-H", "category": "Application exception", "fault_type": "python_exception_hidden", "target": "checkout" },
+    { "id": "SC-02-V1", "category": "Stopped container", "fault_type": "container_stop", "target": "inventory" },
+    { "id": "SC-02-V2", "category": "Stopped container", "fault_type": "container_stop", "target": "checkout" },
+    { "id": "SC-02-H", "category": "Stopped container", "fault_type": "probe_misconfig", "target": "inventory" },
+    { "id": "SC-03-V1", "category": "CPU saturation", "fault_type": "cpu_busy_loop", "target": "checkout" },
+    { "id": "SC-03-V2", "category": "CPU saturation", "fault_type": "cpu_busy_loop", "target": "inventory" },
+    { "id": "SC-03-H", "category": "CPU saturation", "fault_type": "cpu_busy_loop_hidden", "target": "checkout" },
+    { "id": "SC-04-V1", "category": "Memory saturation", "fault_type": "mem_leak", "target": "inventory" },
+    { "id": "SC-04-V2", "category": "Memory saturation", "fault_type": "mem_leak", "target": "checkout" },
+    { "id": "SC-04-H", "category": "Memory saturation", "fault_type": "mem_leak_hidden", "target": "inventory" },
+    { "id": "SC-05-V1", "category": "Network failure", "fault_type": "net_partition", "target": "checkout_inventory" },
+    { "id": "SC-05-V2", "category": "Network failure", "fault_type": "net_config_error", "target": "checkout" },
+    { "id": "SC-05-H", "category": "Network failure", "fault_type": "net_intermittent_loss", "target": "checkout_inventory" },
+    { "id": "SC-06-V1", "category": "Telemetry-pipeline failure", "fault_type": "collector_stop", "target": "otel-collector" },
+    { "id": "SC-06-V2", "category": "Telemetry-pipeline failure", "fault_type": "exporter_misconfig", "target": "otel-collector" },
+    { "id": "SC-06-H", "category": "Telemetry-pipeline failure", "fault_type": "partial_signal_drop", "target": "otel-collector" },
+    { "id": "SC-07-V1", "category": "Invalid configuration", "fault_type": "invalid_config", "target": "checkout" },
+    { "id": "SC-07-V2", "category": "Invalid configuration", "fault_type": "invalid_config", "target": "inventory" },
+    { "id": "SC-07-H", "category": "Invalid configuration", "fault_type": "hidden_config", "target": "checkout" },
+    { "id": "SC-08-V1", "category": "Deployment regression", "fault_type": "deploy_regression", "target": "checkout" },
+    { "id": "SC-08-V2", "category": "Deployment regression", "fault_type": "deploy_regression", "target": "inventory" },
+    { "id": "SC-08-H", "category": "Deployment regression", "fault_type": "slow_regression", "target": "checkout" }
+  ]
+}

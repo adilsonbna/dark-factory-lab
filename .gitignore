@@ -13,3 +13,4 @@ __pycache__/
 .pytest_cache/
 otel-data/
 clickhouse-data/
+eval/results_latest.json

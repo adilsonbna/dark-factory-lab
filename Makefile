@@ -1,13 +1,27 @@
-.PHONY: up down reset eval
+COMPOSE := docker compose -f infra/compose/docker-compose.yml
+
+.PHONY: up down reset eval build ps logs verify
+
+build:
+	$(COMPOSE) build
 
 up:
-	@echo "TODO: docker compose up — milestone 2"
+	$(COMPOSE) up -d --build
 
 down:
-	@echo "TODO: docker compose down"
+	$(COMPOSE) down
 
 reset:
-	@echo "TODO: wipe local lab state"
+	$(COMPOSE) down -v
 
 eval:
-	@echo "TODO: run 24-scenario harness"
+	$(COMPOSE) run --rm eval python3 /app/eval/harness.py
+
+ps:
+	$(COMPOSE) ps
+
+logs:
+	$(COMPOSE) logs -f
+
+verify:
+	$(COMPOSE) exec clickhouse clickhouse-client --password clickhouse --query "SELECT ServiceName, MetricName, count() AS rows FROM telemetry.otel_metrics_sum GROUP BY ServiceName, MetricName ORDER BY ServiceName, MetricName"
