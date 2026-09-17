@@ -1,0 +1,28 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+exporters:
+  clickhouse:
+    endpoint: tcp://clickhouse:9000
+    database: telemetry
+    username: default
+    password: ${env:CLICKHOUSE_PASSWORD}
+    create_schema: true
+    ttl: 604800 # 7 days raw-telemetry retention (intent §21)
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      exporters: [clickhouse]
+    metrics:
+      receivers: [otlp]
+      exporters: [clickhouse]
+    logs:
+      receivers: [otlp]
+      exporters: [clickhouse]

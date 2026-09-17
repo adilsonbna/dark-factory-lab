@@ -1,0 +1,108 @@
+services:
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest # contrib REQUIRED for the clickhouse exporter
+    command: ["--config=/etc/otel/config.yaml"]
+    environment:
+      CLICKHOUSE_PASSWORD: clickhouse
+    volumes:
+      - ./otel-config.yaml:/etc/otel/config.yaml:ro
+    ports:
+      - "4317:4317" # OTLP gRPC
+      - "4318:4318" # OTLP HTTP
+    depends_on:
+      clickhouse:
+        condition: service_healthy
+    restart: unless-stopped
+
+  clickhouse:
+    image: clickhouse/clickhouse-server:24.3
+    environment:
+      CLICKHOUSE_DB: telemetry
+      CLICKHOUSE_USER: default
+      CLICKHOUSE_PASSWORD: clickhouse # lab-local default; override for non-local use
+    ports:
+      - "8123:8123" # HTTP interface
+      - "9000:9000" # native TCP (collector exporter)
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
+    healthcheck:
+      test: ["CMD", "clickhouse-client", "--query", "SELECT 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 10s
+    restart: unless-stopped
+
+  clickstack:
+    image: alpine:3.19
+    command: ["sleep", "infinity"] # placeholder: ClickStack/HyperDX (Milestone 4)
+
+  checkout:
+    build:
+      context: ../../services/checkout
+    ports:
+      - "8081:8081"
+    environment:
+      INVENTORY_URL: http://inventory:8082
+    depends_on:
+      inventory:
+        condition: service_started
+      otel-collector:
+        condition: service_started
+    restart: unless-stopped
+
+  inventory:
+    build:
+      context: ../../services/inventory
+    ports:
+      - "8082:8082"
+    depends_on:
+      otel-collector:
+        condition: service_started
+    restart: unless-stopped
+
+  generator-python:
+    build:
+      context: ../../generators/python_gen
+      dockerfile: Dockerfile
+    depends_on:
+      otel-collector:
+        condition: service_started
+    restart: unless-stopped
+
+  generator-rust:
+    build:
+      context: ../../generators/rust_gen
+      dockerfile: Dockerfile
+    depends_on:
+      otel-collector:
+        condition: service_started
+    restart: unless-stopped
+
+  api:
+    build: ../../apps/api
+    volumes: ["../../apps/api:/app"]
+    ports: ["8000:8000"]
+    restart: unless-stopped
+
+  web:
+    build: ../../apps/web
+    ports: ["3000:80"]
+    depends_on:
+      api:
+        condition: service_started
+    restart: unless-stopped
+
+  orchestrator:
+    build: ../../services/orchestrator
+    restart: unless-stopped
+
+  eval:
+    image: python:3.9-alpine
+    profiles: ["eval"]
+    volumes: ["../../:/app"]
+    working_dir: /app
+    command: ["sleep", "infinity"]
+
+volumes:
+  clickhouse_data:
