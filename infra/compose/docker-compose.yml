@@ -95,6 +95,14 @@ services:
 
   orchestrator:
     build: ../../services/orchestrator
+    environment:
+      API_URL: http://api:8000
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-3.8-flash}
+      REPOSITORY_REVISION: ${REPOSITORY_REVISION:-local}
+    depends_on:
+      api:
+        condition: service_started
     restart: unless-stopped
 
   eval:

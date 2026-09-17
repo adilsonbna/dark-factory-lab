@@ -103,16 +103,29 @@ Detected → Triaged → Investigating → Fix proposed → Validating → Appro
 - Retry cycle ≤ 3 attempts, each requiring new evidence; then circuit breaker → `Escalated`.
 - Kill switch halts forward progress from any state.
 
-## 7. Blue-green deployment
+## 7. Triage and investigation agent boundary
+
+The Milestone 7 vertical slice keeps authority in deterministic code:
+
+1. `TriageAgent` requests a schema-constrained decision containing only low/medium severity, affected service, telemetry window, and bounded duplicate linkage.
+2. `InvestigationAgent` collects logs, metrics, and traces through the backend MCP boundary before requesting a schema-constrained hypothesis.
+3. Deterministic policy rejects invented evidence IDs, missing signal kinds, and remediation scope outside the affected service.
+4. Every accepted decision records role, provider, model, prompt version, repository revision, correlation ID, timestamp, and tool calls.
+5. The orchestrator alone advances `Detected → Triaged → Investigating → Fix proposed`; agents cannot mutate state directly.
+6. The kill switch is checked before the first model call and between transitions. Missing model credentials disable agent processing rather than selecting an implicit fallback.
+
+The model adapter and observability gateway are injected ports. The initial runtime adapter uses Gemini structured output, while tests use local fakes and never require credentials or network access.
+
+## 8. Blue-green deployment
 
 Per `intent.md` §16: build immutable image → start candidate in parallel → run health/functional/security/observability gates → switch traffic only after all pass → keep previous version during the observation window → auto-rollback ≤ 2 min on gate failure.
 
-## 8. Repositories and delivery
+## 9. Repositories and delivery
 
 - Monorepo: `apps/web`, `apps/api`, `services/orchestrator`, `generators/`, `infra/compose/`, `eval/scenarios/`, `docs/adr/`, `docs/runbooks/`.
 - GitHub is the source of truth for issues, PRs, and Actions gates; ADRs record durable decisions.
-- Milestones follow `intent.md` §23; this document targets Milestones 2–6.
+- Milestones follow `intent.md` §23; this document currently covers the foundation through the first Milestone 7 vertical slice.
 
-## 9. Open decisions
+## 10. Open decisions
 
-Recorded in `intent.md` §25: agent framework (Google ADK preferred pending spike), display name, monetary budget. Component stubs remain `.gitkeep` until their milestone; no runtime code is added before `requirements.md` baselines.
+Recorded in `intent.md` §25: agent framework (Google ADK preferred pending spike), display name, and monetary budget. The current agents depend on an internal adapter and do not decide the final framework choice.
